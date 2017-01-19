@@ -1,6 +1,8 @@
 $(function(){
   document.body.addEventListener("keydown", moveCharacter);
-  dropBlood();
+
+  var randDropNum = Math.floor(Math.random() * (5000-1000+1)) + 1000;
+  setInterval(dropBlood, randDropNum);
 });
 
 function moveCharacter(evt) {
@@ -8,7 +10,6 @@ function moveCharacter(evt) {
       xVal = parseInt(character.css("left").replace("px", "")),
       gameContainerWidth = $('.game-container').width() - character.width();
 
-  // var evt = evt || window.event;
   switch (evt.keyCode) {
     case 37:
       xVal = xVal-10;
@@ -20,16 +21,17 @@ function moveCharacter(evt) {
       break;
   }
 
-  if (xVal > gameContainerWidth) {
-    xVal = gameContainerWidth;
-  } else if (xVal < 0) {
-    xVal = 0;
-  }
+  if (xVal > gameContainerWidth) { xVal = gameContainerWidth; } 
+  else if (xVal < 0) { xVal = 0; }
+
   character.css("left", xVal + "px");
 }
 
 function dropBlood() {
-  var vial = $('#blood-vial-1');
+  var vial = $('#blood-vial-1').clone().removeAttr("id");
+  vial.css({left: Math.floor(Math.random() * 101) + "vw"});
+  $('.game-container').append(vial);
+  
 
 
 

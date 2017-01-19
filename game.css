@@ -27,6 +27,13 @@ body {
 
 .blood-vial {
   width: 25px;
+  position: absolute;
+  top: -70px;
+  animation: droppinBlood 4s linear forwards;
+}
+
+@keyframes droppinBlood {
+  to { transform: translateY(95vh); }
 }
 
 @media (max-width: 1175px) {
