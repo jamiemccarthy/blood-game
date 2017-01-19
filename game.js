@@ -8,15 +8,16 @@ $(function(){
 function moveCharacter(evt) {
   var character = character || $('.character'),
       xVal = parseInt(character.css("left").replace("px", "")),
-      gameContainerWidth = $('.game-container').width() - character.width();
+      gameContainerWidth = $('.game-container').width() - character.width(),
+      moveIncrement = 20;
 
   switch (evt.keyCode) {
     case 37:
-      xVal = xVal-10;
+      xVal = xVal - moveIncrement;
       character.addClass('flip');
       break;
     case 39:
-      xVal = xVal+10;
+      xVal = xVal + moveIncrement;
       character.removeClass('flip');
       break;
   }
@@ -33,7 +34,7 @@ function dropBlood() {
   $('.game-container').append(vial);
   
 
-
+  setInterval(function() { vial.remove(); }, 10000);
 
   // somewhere between every .5 seconds and 2 seconds, drop a new vial of blood in a random area
 

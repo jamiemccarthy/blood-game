@@ -32,6 +32,10 @@ body {
   animation: droppinBlood 4s linear forwards;
 }
 
+#blood-vial-1 {
+  visibility: hidden;
+}
+
 @keyframes droppinBlood {
   to { transform: translateY(95vh); }
 }
