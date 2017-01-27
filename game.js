@@ -1,11 +1,39 @@
 $(function(){
-  document.body.addEventListener("keydown", moveCharacter);
+  var canvas = $("#game"),
+      ctx = canvas.getContext("2d"),
+      canvasWidth = $("#game").width(),
+      canvasHeight = $("#game").height();
+  var currGame = new Game();
+  var character = new GameCharacter();
+  var 
 
-  var randDropNum = Math.floor(Math.random() * (5000-1000+1)) + 1000;
-  setInterval(dropBlood, randDropNum);
+
 });
 
-function moveCharacter(evt) {
+function Game() {
+  
+}
+
+function GameCharacter() {
+  document.body.addEventListener("keydown", moveCharacter);
+}
+
+GameCharacter.prototype.youth = 100;
+
+function GameObject() {
+  var randDropNum = Math.floor(Math.random() * (5000-1000+1)) + 1000;
+  setInterval(dropBlood, randDropNum);
+}
+
+function GameScore() {
+
+}
+
+
+
+
+
+GameCharacter.prototype.moveCharacter = function(evt) {
   var character = character || $('.character'),
       xVal = parseInt(character.css("left").replace("px", "")),
       gameContainerWidth = $('.game-container').width() - character.width(),
@@ -26,16 +54,12 @@ function moveCharacter(evt) {
   else if (xVal < 0) { xVal = 0; }
 
   character.css("left", xVal + "px");
-}
+};
 
-function dropBlood() {
+GameObject.prototype.dropBlood = function() {
   var vial = $('#blood-vial-1').clone().removeAttr("id");
   vial.css({left: Math.floor(Math.random() * 101) + "vw"});
   $('.game-container').append(vial);
   
-
   setInterval(function() { vial.remove(); }, 10000);
-
-  // somewhere between every .5 seconds and 2 seconds, drop a new vial of blood in a random area
-
-}
+};
