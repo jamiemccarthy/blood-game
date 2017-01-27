@@ -4,14 +4,13 @@ $(function(){
       canvasWidth = $("#game").width(),
       canvasHeight = $("#game").height();
   var currGame = new Game();
-  var character = new GameCharacter();
-  var 
-
-
 });
 
 function Game() {
-  
+  var character = new GameCharacter();
+  var object = new GameObject();
+  setInterval(dropBlood, object.randDropNum);
+  character.moveCharacter();
 }
 
 function GameCharacter() {
@@ -21,15 +20,12 @@ function GameCharacter() {
 GameCharacter.prototype.youth = 100;
 
 function GameObject() {
-  var randDropNum = Math.floor(Math.random() * (5000-1000+1)) + 1000;
-  setInterval(dropBlood, randDropNum);
+  this.randDropNum = Math.floor(Math.random() * (5000-1000+1)) + 1000;
 }
 
 function GameScore() {
 
 }
-
-
 
 
 
