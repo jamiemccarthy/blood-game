@@ -1,9 +1,14 @@
 body {
   margin: 0;
-  text-align: center;
-  background: #e5dfde;
+  background: #efefef;
   font-family: 'VT323', monospace;
 }
+
+#game-container {
+  margin: 0 auto;
+}
+
+
 /*
 .game-container {
   width: 100%;
