@@ -4,12 +4,14 @@ var ground,
     vials,
     cursors,
     newVial = true;
+
 function preload() {
   game.load.image('sky', 'img/sky.png');
   game.load.image('ground', 'img/ground2.png');
   game.load.image('oldBlood', 'img/old-blood.png');
   game.load.image('youngBlood', 'img/young-blood.png');
-  game.load.image('brokenBlood', 'img/broken-blood-upright.png');
+  game.load.image('brokenYoungBlood', 'img/broken-young-blood-upright.png');
+  game.load.image('brokenOldBlood', 'img/broken-old-blood-upright.png');
   game.load.spritesheet('character', 'img/character-spritesheet.png', 100, 97);
 }
 
@@ -40,10 +42,17 @@ function create() {
   peter.animations.add('right', [6,7,8], 13, true);
   peter.animations.add('jump', [2], 10, true);
 
+  peter.body.onCollide = new Phaser.Signal();
+  // peter.body.onCollide.add(brokenVial, this);
+
   // set interval loop for dropping blood
   game.time.events.repeat(randTime, 1000, bloodDrop, this);
 
   cursors = game.input.keyboard.createCursorKeys();
+
+  // get that score
+  var scoreText = game.add.text(16, 16, 'Youth: 0', { font: '25px VT323', fill: '#000' });
+  scoreText.text.font = 'VT323';
 }
 
 function update() {
@@ -91,6 +100,10 @@ function bloodDrop() {
 
 function brokenVial(vial) {
   vial.angle = 90;
-  vial.loadTexture('brokenBlood', 500);
+  if (vial.key === "youngBlood") {
+    vial.loadTexture("brokenYoungBlood", 50);
+  } else {
+    vial.loadTexture("brokenOldBlood", 50);
+  }
 }
 
