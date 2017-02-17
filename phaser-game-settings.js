@@ -2,18 +2,21 @@ var game = new Phaser.Game(1000, 650, Phaser.AUTO, '', {preload: preload, create
 var ground,
     peter,
     vials,
-    cursors;
+    cursors,
+    newVial = true;
 function preload() {
   game.load.image('sky', 'img/sky.png');
   game.load.image('ground', 'img/ground2.png');
   game.load.image('oldBlood', 'img/old-blood.png');
   game.load.image('youngBlood', 'img/young-blood.png');
+  game.load.image('brokenBlood', 'img/broken-blood-upright.png');
   game.load.spritesheet('character', 'img/character-spritesheet.png', 100, 97);
 }
 
 function create() {
   var youngBloodVial,
-      oldBloodVial;
+      oldBloodVial,
+      randTime = game.rnd.pick([2500, 3000, 3500, 4000, 5000, 6000]);
 
   game.physics.startSystem(Phaser.Physics.ARCADE);
   game.add.sprite(0, 0, 'sky');
@@ -26,7 +29,6 @@ function create() {
   // set the vials
   vials = game.add.group();
   vials.enableBody = true;
-  bloodDrop('youngBlood');
 
   // set the character
   peter = game.add.sprite(32, game.world.height - 305, 'character');
@@ -38,12 +40,16 @@ function create() {
   peter.animations.add('right', [6,7,8], 13, true);
   peter.animations.add('jump', [2], 10, true);
 
+  // set interval loop for dropping blood
+  game.time.events.repeat(randTime, 1000, bloodDrop, this);
+
   cursors = game.input.keyboard.createCursorKeys();
 }
 
 function update() {
   var hitGround = game.physics.arcade.collide(peter, ground);
   game.physics.arcade.collide(peter, vials);
+  var fallenVial = game.physics.arcade.collide(vials, ground);
  
   // set keyboard controls
   peter.body.velocity.x = 0;
@@ -67,9 +73,24 @@ function update() {
   }
 }
 
-function bloodDrop(bloodType) {
-  var randXCoord = Math.floor(Math.random(1001) * 1000),
-      blood;
-  blood = vials.create(randXCoord, -10, bloodType);
+function bloodDrop() {
+  var vial,
+      bloodTypes = ['youngBlood', 'oldBlood', 'youngBlood', 'youngBlood'];
+  vial = vials.create(game.world.randomX, -10, game.rnd.pick(bloodTypes));
+  vial.body.gravity.y = 200;
+  vial.body.collideWorldBounds = true;
+
+  // set up vial for collision change
+  vial.body.onCollide = new Phaser.Signal();
+  vial.body.onCollide.add(brokenVial, this);
+  vial.anchor.setTo(.75, .75);
+
+  // get rid of the vial after 30s
+  setTimeout(function() {vial.kill();}, 30000);
+}
+
+function brokenVial(vial) {
+  vial.angle = 90;
+  vial.loadTexture('brokenBlood', 500);
 }
 
