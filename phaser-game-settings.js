@@ -3,7 +3,8 @@ var ground,
     peter,
     vials,
     cursors,
-    newVial = true;
+    newVial = true,
+    youthScore;
 
 function preload() {
   game.load.image('sky', 'img/sky.png');
@@ -34,6 +35,8 @@ function create() {
 
   // set the character
   peter = game.add.sprite(32, game.world.height - 305, 'character');
+  peter.health = 100;
+  peter.maxHealth = 100;
   game.physics.arcade.enable(peter);
   peter.body.bounce.y = 0.2;
   peter.body.gravity.y = 300;
@@ -42,23 +45,20 @@ function create() {
   peter.animations.add('right', [6,7,8], 13, true);
   peter.animations.add('jump', [2], 10, true);
 
-  peter.body.onCollide = new Phaser.Signal();
-  // peter.body.onCollide.add(brokenVial, this);
-
   // set interval loop for dropping blood
   game.time.events.repeat(randTime, 1000, bloodDrop, this);
 
   cursors = game.input.keyboard.createCursorKeys();
 
   // get that score
-  var scoreText = game.add.text(16, 16, 'Youth: 0', { font: '25px VT323', fill: '#000' });
-  scoreText.text.font = 'VT323';
+  youthScore = game.add.text(16, 16, 'Youth: ' + peter.health, { font: '25px VT323', fill: '#000' });
 }
 
 function update() {
-  var hitGround = game.physics.arcade.collide(peter, ground);
-  game.physics.arcade.collide(peter, vials);
-  var fallenVial = game.physics.arcade.collide(vials, ground);
+  var hitGround = game.physics.arcade.collide(peter, ground),
+      fallenVial = game.physics.arcade.collide(vials, ground);
+
+  game.physics.arcade.overlap(peter, vials, bloodHit, null, this);
  
   // set keyboard controls
   peter.body.velocity.x = 0;
@@ -76,16 +76,18 @@ function update() {
     peter.frame = 1;
   }
 
-  if (cursors.up.isDown && peter.body.touching.down && hitGround) {
-    peter.frame = 4;
-    peter.body.velocity.y = -150;
-  }
+
+  // To add a jumping effect later, maybe
+  // if (cursors.up.isDown && peter.body.touching.down && hitGround) {
+  //   peter.frame = 4;
+  //   peter.body.velocity.y = -150;
+  // }
 }
 
 function bloodDrop() {
   var vial,
       bloodTypes = ['youngBlood', 'oldBlood', 'youngBlood', 'youngBlood'];
-  vial = vials.create(game.world.randomX, -10, game.rnd.pick(bloodTypes));
+  vial = vials.create(game.world.randomX, -30, game.rnd.pick(bloodTypes));
   vial.body.gravity.y = 200;
   vial.body.collideWorldBounds = true;
 
@@ -94,8 +96,9 @@ function bloodDrop() {
   vial.body.onCollide.add(brokenVial, this);
   vial.anchor.setTo(.75, .75);
 
-  // get rid of the vial after 30s
-  setTimeout(function() {vial.kill();}, 30000);
+
+  // vial.body.onCollide = new Phaser.Signal();
+  // vial.body.onCollide.add(bloodHit, this);
 }
 
 function brokenVial(vial) {
@@ -105,5 +108,17 @@ function brokenVial(vial) {
   } else {
     vial.loadTexture("brokenOldBlood", 50);
   }
+  // get rid of the vial after 20s
+  setTimeout(function() {vial.kill();}, 20000);
+}
+
+function bloodHit(peter, vial) {
+  if (vial.key === "youngBlood") {
+    peter.heal(10);
+  } else if (vial.key === "oldBlood") {
+    peter.damage(10);
+  }
+  youthScore.text = 'Youth: ' + peter.health;
+  vial.kill();
 }
 
