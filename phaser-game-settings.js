@@ -35,7 +35,7 @@ function create() {
 
   // set the character
   peter = game.add.sprite(32, game.world.height - 305, 'character');
-  peter.health = 100;
+  peter.health = 10;
   peter.maxHealth = 100;
   game.physics.arcade.enable(peter);
   peter.body.bounce.y = 0.2;
@@ -47,6 +47,9 @@ function create() {
 
   // set interval loop for dropping blood
   game.time.events.repeat(randTime, 1000, bloodDrop, this);
+
+  // Time is cruel and relentless, forever marching forward
+  game.time.events.repeat(7000, 1000, agePeter, this);
 
   cursors = game.input.keyboard.createCursorKeys();
 
@@ -76,6 +79,9 @@ function update() {
     peter.frame = 1;
   }
 
+  if (peter.health < 10) {
+    endGame();
+  }
 
   // To add a jumping effect later, maybe
   // if (cursors.up.isDown && peter.body.touching.down && hitGround) {
@@ -86,23 +92,21 @@ function update() {
 
 function bloodDrop() {
   var vial,
-      bloodTypes = ['youngBlood', 'oldBlood', 'youngBlood', 'youngBlood'];
+      bloodTypes = ['youngBlood', 'oldBlood'];
   vial = vials.create(game.world.randomX, -30, game.rnd.pick(bloodTypes));
-  vial.body.gravity.y = 200;
+  vial.body.gravity.y = 150;
   vial.body.collideWorldBounds = true;
 
   // set up vial for collision change
   vial.body.onCollide = new Phaser.Signal();
   vial.body.onCollide.add(brokenVial, this);
-  vial.anchor.setTo(.75, .75);
-
-
-  // vial.body.onCollide = new Phaser.Signal();
-  // vial.body.onCollide.add(bloodHit, this);
+  vial.anchor.setTo(0.75, 0.75);
+  vial.healthEffect = 10;
 }
 
 function brokenVial(vial) {
   vial.angle = 90;
+  vial.healthEffect = 0;
   if (vial.key === "youngBlood") {
     vial.loadTexture("brokenYoungBlood", 50);
   } else {
@@ -114,11 +118,20 @@ function brokenVial(vial) {
 
 function bloodHit(peter, vial) {
   if (vial.key === "youngBlood") {
-    peter.heal(10);
+    peter.heal(vial.healthEffect);
   } else if (vial.key === "oldBlood") {
-    peter.damage(10);
+    peter.damage(vial.healthEffect);
   }
   youthScore.text = 'Youth: ' + peter.health;
   vial.kill();
+}
+
+function agePeter() {
+  peter.damage(10);
+}
+
+function endGame() {
+  game.add.text(game.width/2-250, 300, 'YOU LOSE.', {font: '125px VT323', fill: '#800000', align: 'center', width: '100%'});
+  game.add.text(game.width/2-275, 400, "You're old now.", {font: '65px VT323', fill: '#800000', align: 'center', width: '100%'});
 }
 
