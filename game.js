@@ -1,65 +1,54 @@
-$(function(){
-  var canvas = $("#game"),
-      ctx = canvas.getContext("2d"),
-      canvasWidth = $("#game").width(),
-      canvasHeight = $("#game").height();
-  var currGame = new Game();
-  var character = new GameCharacter();
-  var 
+var game = new Phaser.Game(1000, 650, Phaser.AUTO, '');
 
+// add states but hold off on turning on pregame state for now so it isnt hell to develop
+// game.state.add('pregame', pregameState);
+game.state.add('play', playState);
+game.state.add('end', endState);
+//change this to pregame later
+game.state.start('play');
 
-});
+function bloodDrop() {
+  var vial,
+      bloodTypes = ['youngBlood', 'oldBlood'];
+  vial = vials.create(game.world.randomX, -30, game.rnd.pick(bloodTypes));
+  vial.body.gravity.y = 150;
+  vial.body.collideWorldBounds = true;
 
-function Game() {
-  
+  // set up vial for collision change
+  vial.body.onCollide = new Phaser.Signal();
+  vial.body.onCollide.add(brokenVial, this);
+  vial.anchor.setTo(0.75, 0.75);
+  vial.healthEffect = 10;
 }
 
-function GameCharacter() {
-  document.body.addEventListener("keydown", moveCharacter);
-}
-
-GameCharacter.prototype.youth = 100;
-
-function GameObject() {
-  var randDropNum = Math.floor(Math.random() * (5000-1000+1)) + 1000;
-  setInterval(dropBlood, randDropNum);
-}
-
-function GameScore() {
-
-}
-
-
-
-
-
-GameCharacter.prototype.moveCharacter = function(evt) {
-  var character = character || $('.character'),
-      xVal = parseInt(character.css("left").replace("px", "")),
-      gameContainerWidth = $('.game-container').width() - character.width(),
-      moveIncrement = 20;
-
-  switch (evt.keyCode) {
-    case 37:
-      xVal = xVal - moveIncrement;
-      character.addClass('flip');
-      break;
-    case 39:
-      xVal = xVal + moveIncrement;
-      character.removeClass('flip');
-      break;
+function brokenVial(vial) {
+  vial.angle = 90;
+  vial.healthEffect = 0;
+  if (vial.key === "youngBlood") {
+    vial.loadTexture("brokenYoungBlood", 50);
+  } else {
+    vial.loadTexture("brokenOldBlood", 50);
   }
+  // get rid of the vial after 20s
+  setTimeout(function() {vial.kill();}, 20000);
+}
 
-  if (xVal > gameContainerWidth) { xVal = gameContainerWidth; } 
-  else if (xVal < 0) { xVal = 0; }
+function bloodHit(peter, vial) {
+  if (vial.key === "youngBlood") {
+    peter.heal(vial.healthEffect);
+  } else if (vial.key === "oldBlood") {
+    peter.damage(vial.healthEffect);
+  }
+  youthScore.text = 'Youth: ' + peter.health;
+  vial.kill();
+}
 
-  character.css("left", xVal + "px");
-};
+function agePeter() {
+  peter.damage(10);
+}
 
-GameObject.prototype.dropBlood = function() {
-  var vial = $('#blood-vial-1').clone().removeAttr("id");
-  vial.css({left: Math.floor(Math.random() * 101) + "vw"});
-  $('.game-container').append(vial);
-  
-  setInterval(function() { vial.remove(); }, 10000);
-};
+function endGame() {
+  game.add.text(game.width/2-250, 300, 'YOU LOSE.', {font: '125px VT323', fill: '#800000', align: 'center', width: '100%'});
+  game.add.text(game.width/2-275, 400, "You're old now.", {font: '65px VT323', fill: '#800000', align: 'center', width: '100%'});
+}
+
