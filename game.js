@@ -36,8 +36,12 @@ function brokenVial(vial) {
 function bloodHit(peter, vial) {
   if (vial.key === "youngBlood") {
     peter.heal(vial.healthEffect);
+
+    // be real cool n modern n vibrate the window if we can
+    if ("vibrate" in window.navigator) { window.navigator.vibrate(100); }
   } else if (vial.key === "oldBlood") {
     peter.damage(vial.healthEffect);
+    if ("vibrate" in window.navigator) { window.navigator.vibrate(50); window.navigator.vibrate(50); window.navigator.vibrate(50); }
   }
   youthScore.text = 'Youth: ' + peter.health;
   vial.kill();
@@ -46,9 +50,3 @@ function bloodHit(peter, vial) {
 function agePeter() {
   peter.damage(10);
 }
-
-function endGame() {
-  game.add.text(game.width/2-250, 300, 'YOU LOSE.', {font: '125px VT323', fill: '#800000', align: 'center', width: '100%'});
-  game.add.text(game.width/2-275, 400, "You're old now.", {font: '65px VT323', fill: '#800000', align: 'center', width: '100%'});
-}
-

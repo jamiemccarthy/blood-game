@@ -4,7 +4,7 @@ var ground,
     cursors,
     newVial = true,
     youthScore;
-    
+
 var playState = {
 
   preload: function() {
@@ -20,7 +20,13 @@ var playState = {
   create: function() {
     var youngBloodVial,
         oldBloodVial,
-        randTime = game.rnd.pick([2500, 3000, 3500, 4000, 5000, 6000]);
+        randTime = game.rnd.pick([2500, 3000, 3500, 4000, 5000, 6000]),
+        timer = this;
+
+    timer.startTime = new Date();
+    timer.totalTime = 90;
+    timer.timeElapsed = 0;
+
 
     game.physics.startSystem(Phaser.Physics.ARCADE);
     game.add.sprite(0, 0, 'sky');
@@ -36,7 +42,7 @@ var playState = {
 
     // set the character
     peter = game.add.sprite(32, game.world.height - 305, 'character');
-    peter.health = 100;
+    peter.health = 70;
     peter.maxHealth = 100;
     game.physics.arcade.enable(peter);
     peter.body.bounce.y = 0.2;
@@ -53,6 +59,12 @@ var playState = {
     game.time.events.repeat(7000, 1000, agePeter, this);
 
     cursors = game.input.keyboard.createCursorKeys();
+
+    //add the timer
+    timer.createTimer();
+    timer.gameTimer = game.time.events.loop(100, function() {
+      timer.updateTimer();
+    });
 
     // get that score
     youthScore = game.add.text(16, 16, 'Youth: ' + peter.health, { font: '25px VT323', fill: '#000' });
@@ -81,12 +93,36 @@ var playState = {
     }
 
     if (peter.health < 10) {
-      endGame();
+      this.end;
     }
   },
 
   end: function() {
-    game.state.start('endGame');
+    game.state.start('endState');
+  },
+
+  createTimer: function() {
+    var timer = this;
+    timer.timeLabel = game.add.text(250, 16, "00:00", {font: "25px VT323", fill: "#000"});
+    timer.timeLabel.anchor.setTo(0.5, 0);
+    timer.timeLabel.align = 'center';
+  },
+
+  updateTimer: function() {
+    var timer = this,
+        currentTime = new Date(),
+        timeDifference = timer.startTime.getTime() - currentTime.getTime();
+    timer.timeElapsed = Math.abs(timeDifference / 1000);
+
+    var timeRemaining = timer.totalTime - timer.timeElapsed;
+    var minutes = Math.floor(timeRemaining / 60);
+    var seconds = Math.floor(timeRemaining) - (60 * minutes);
+
+    var result = "Time left: "
+    result += (minutes < 10) ? "0" + minutes : minutes;
+    result += ":";
+    result += (seconds < 10) ? "0" + seconds : seconds;
+    timer.timeLabel.text = result;
   }
 
   // To add a jumping effect later, maybe
