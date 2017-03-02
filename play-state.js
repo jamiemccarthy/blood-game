@@ -14,7 +14,7 @@ var playState = {
     game.load.image('youngBlood', 'img/young-blood.png');
     game.load.image('brokenYoungBlood', 'img/broken-young-blood-upright.png');
     game.load.image('brokenOldBlood', 'img/broken-old-blood-upright.png');
-    game.load.spritesheet('character', 'img/character-spritesheet.png', 100, 97);
+    game.load.spritesheet('character', 'img/character-spritesheet.png', 100, 96);
   },
 
   create: function() {
@@ -53,14 +53,14 @@ var playState = {
     peter.animations.add('jump', [2], 10, true);
 
     // set interval loop for dropping blood
-    game.time.events.repeat(randTime, 1000, bloodDrop, this);
+    game.time.events.repeat(randTime, 1000, this.bloodDrop, this);
 
     // Time is cruel and relentless, forever marching forward
-    game.time.events.repeat(7000, 1000, agePeter, this);
+    game.time.events.repeat(7000, 1000, this.agePeter, this);
 
     cursors = game.input.keyboard.createCursorKeys();
 
-    //add the timer
+    // add the timer
     timer.createTimer();
     timer.gameTimer = game.time.events.loop(100, function() {
       timer.updateTimer();
@@ -74,7 +74,7 @@ var playState = {
     var hitGround = game.physics.arcade.collide(peter, ground),
         fallenVial = game.physics.arcade.collide(vials, ground);
 
-    game.physics.arcade.overlap(peter, vials, bloodHit, null, this);
+    game.physics.arcade.overlap(peter, vials, this.bloodHit, null, this);
    
     // set keyboard controls
     peter.body.velocity.x = 0;
@@ -91,10 +91,49 @@ var playState = {
       peter.animations.stop();
       peter.frame = 1;
     }
-
-    if (peter.health < 10) {
-      this.end;
+    if (this.timeElapsed >= this.totalTime){
+      this.end();
     }
+  },
+
+  bloodDrop: function() {
+    var vial,
+        bloodTypes = ['youngBlood', 'oldBlood'];
+    vial = vials.create(game.world.randomX, -30, game.rnd.pick(bloodTypes));
+    vial.body.gravity.y = 150;
+    vial.body.collideWorldBounds = true;
+
+    // set up vial for collision change
+    vial.body.onCollide = new Phaser.Signal();
+    vial.body.onCollide.add(this.brokenVial, this);
+    vial.anchor.setTo(0.75, 0.75);
+    vial.healthEffect = 10;
+  },
+
+  brokenVial: function(vial) {
+    vial.angle = 90;
+    vial.healthEffect = 0;
+    if (vial.key === "youngBlood") {
+      vial.loadTexture("brokenYoungBlood", 50);
+    } else {
+      vial.loadTexture("brokenOldBlood", 50);
+    }
+    // get rid of the vial after 20s
+    setTimeout(function() {vial.kill();}, 20000);
+  },
+
+  bloodHit: function(peter, vial) {
+    if (vial.key === "youngBlood") {
+      peter.heal(vial.healthEffect);
+    } else if (vial.key === "oldBlood") {
+      peter.damage(vial.healthEffect);
+    }
+    youthScore.text = 'Youth: ' + peter.health;
+    vial.kill();
+  },
+
+  agePeter: function() {
+    peter.damage(10);
   },
 
   end: function() {
@@ -118,7 +157,7 @@ var playState = {
     var minutes = Math.floor(timeRemaining / 60);
     var seconds = Math.floor(timeRemaining) - (60 * minutes);
 
-    var result = "Time left: "
+    var result = "Time left: ";
     result += (minutes < 10) ? "0" + minutes : minutes;
     result += ":";
     result += (seconds < 10) ? "0" + seconds : seconds;
