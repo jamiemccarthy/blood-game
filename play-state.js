@@ -94,7 +94,7 @@ var playState = {
         peter.frame = 1;
       }
 
-    if (this.timeElapsed >= this.totalTime){
+    if (peter.health <= 0) {
       this.end();
     }
   },
@@ -141,7 +141,7 @@ var playState = {
   },
 
   end: function() {
-    game.state.start('endState');
+    game.state.start('end');
   },
 
   createTimer: function() {
@@ -160,12 +160,18 @@ var playState = {
     var timeRemaining = timer.totalTime - timer.timeElapsed;
     var minutes = Math.floor(timeRemaining / 60);
     var seconds = Math.floor(timeRemaining) - (60 * minutes);
-
     var result = "Time left: ";
-    result += (minutes < 10) ? "0" + minutes : minutes;
-    result += ":";
-    result += (seconds < 10) ? "0" + seconds : seconds;
-    timer.timeLabel.text = result;
+    var formattedTime = "";
+    formattedTime += (minutes < 10) ? "0" + minutes : minutes;
+    formattedTime += ":";
+    formattedTime += (seconds < 10) ? "0" + seconds : seconds;
+
+    if (formattedTime === "00:00") {
+      this.end();
+    } else {
+      result += formattedTime;
+      timer.timeLabel.text = result;
+    }
   }
 
   // To add a jumping effect later, maybe
