@@ -45,14 +45,21 @@ var playState = {
     peter = game.add.sprite(32, game.world.height - 305, 'character');
     peter.health = 70;
     peter.maxHealth = 100;
+    peter.flashUntil = 0;
+    peter.facing = 'right';
     game.physics.arcade.enable(peter);
     peter.body.bounce.y = 0.2;
     peter.body.gravity.y = 300;
     peter.body.collideWorldBounds = true;
-    peter.animations.add('left', [9,10,11], 13, true);
-    peter.animations.add('right', [6,7,8], 13, true);
-    peter.animations.add('jump', [2], 10, true);
-    peter.animations.add('flash', [1,2,1,2,1,2], 10, true);
+    peter.animations.add('left',            [9,10,11],       13, true);
+    peter.animations.add('leftFlash',       [9,2,10,2,11,2],  8, true);
+    peter.animations.add('leftStand',       [10],            99, true);
+    peter.animations.add('leftStandFlash',  [10,2],           8, true);
+    peter.animations.add('right',           [6,7,8],         13, true);
+    peter.animations.add('rightFlash',      [6,2,7,2,8,2],    8, true);
+    peter.animations.add('rightStand',      [7],             99, true);
+    peter.animations.add('rightStandFlash', [7,2],            8, true);
+    // peter.animations.add('jump',       [2],             10, true);
 
     // set interval loop for dropping blood
     game.time.events.repeat(randTime, 1000, this.bloodDrop, this);
@@ -81,22 +88,41 @@ var playState = {
     // set keyboard controls
     peter.body.velocity.x = 0;
 
-      if (cursors.left.isDown) {
-        peter.body.velocity.x = -200;
-        peter.animations.play('left');
-      }
-      else if (cursors.right.isDown) {
-        peter.body.velocity.x = 200;
-        peter.animations.play('right');
-      }
-      else {
-        peter.animations.stop();
-        peter.frame = 1;
-      }
+    if (cursors.left.isDown) {
+      peter.body.velocity.x = -200;
+      this.setAnimation('left');
+    }
+    else if (cursors.right.isDown) {
+      peter.body.velocity.x = 200;
+      this.setAnimation('right');
+    }
+    else {
+      peter.body.velocity.x = 0;
+      this.setAnimation('stand');
+    }
 
     if (peter.health <= 0) {
       this.end();
     }
+  },
+
+  // directions are 'left', 'right' or 'stand'
+  setAnimation: function(newDirection) {
+    if (newDirection === 'left') {
+      animationName = 'left';
+      peter.facing = 'left';
+    }
+    else if (newDirection === 'right') {
+      animationName = 'right';
+      peter.facing = 'right';
+    }
+    else { // must be 'stand'
+      animationName = peter.facing + 'Stand';
+    }
+    if (peter.flashUntil > new Date()) { // still flashing?
+      animationName = animationName + 'Flash';
+    }
+    peter.animations.play(animationName);
   },
 
   bloodDrop: function() {
@@ -130,7 +156,7 @@ var playState = {
       peter.heal(vial.healthEffect);
     } else if (vial.key === "oldBlood") {
       peter.damage(vial.healthEffect);
-      peter.animations.play('flash');
+      this.startFlashing();
     }
     youthScore.text = 'Youth: ' + peter.health;
     vial.kill();
@@ -172,6 +198,10 @@ var playState = {
       result += formattedTime;
       timer.timeLabel.text = result;
     }
+  },
+
+  startFlashing: function() {
+    peter.flashUntil = new Date(Date.now() + 2 * 1000);
   }
 
   // To add a jumping effect later, maybe
