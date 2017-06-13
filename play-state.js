@@ -29,12 +29,13 @@ var playState = {
 
 
     game.physics.startSystem(Phaser.Physics.ARCADE);
-    game.add.sprite(0, 0, 'sky');
+    // game.add.sprite(0, 0, 'sky');
+    game.stage.backgroundColor = '#ffffff' 
 
     // add ground
-    ground = game.add.sprite(0, game.world.height - 100, 'ground');
-    game.physics.arcade.enable(ground);
-    ground.body.immovable = true;
+    // ground = game.add.sprite(0, game.world.height - 100, 'ground');
+    // game.physics.arcade.enable(ground);
+    // ground.body.immovable = true;
 
     // set the vials
     vials = game.add.group();
@@ -51,9 +52,10 @@ var playState = {
     peter.animations.add('left', [9,10,11], 13, true);
     peter.animations.add('right', [6,7,8], 13, true);
     peter.animations.add('jump', [2], 10, true);
+    peter.animations.add('flash', [1,2,1,2,1,2], 10, true);
 
     // set interval loop for dropping blood
-    game.time.events.repeat(randTime, 1000, this.bloodDrop, this);
+    // game.time.events.repeat(randTime, 1000, this.bloodDrop, this);
 
     // Time is cruel and relentless, forever marching forward
     game.time.events.repeat(7000, 1000, this.agePeter, this);
@@ -79,18 +81,19 @@ var playState = {
     // set keyboard controls
     peter.body.velocity.x = 0;
 
-    if (cursors.left.isDown) {
-      peter.body.velocity.x = -200;
-      peter.animations.play('left');
-    }
-    else if (cursors.right.isDown) {
-      peter.body.velocity.x = 200;
-      peter.animations.play('right');
-    }
-    else {
-      peter.animations.stop();
-      peter.frame = 1;
-    }
+      if (cursors.left.isDown) {
+        peter.body.velocity.x = -200;
+        peter.animations.play('left');
+      }
+      else if (cursors.right.isDown) {
+        peter.body.velocity.x = 200;
+        peter.animations.play('right');
+      }
+      else {
+        peter.animations.stop();
+        peter.frame = 1;
+      }
+
     if (this.timeElapsed >= this.totalTime){
       this.end();
     }
@@ -127,6 +130,7 @@ var playState = {
       peter.heal(vial.healthEffect);
     } else if (vial.key === "oldBlood") {
       peter.damage(vial.healthEffect);
+      peter.animations.play('flash');
     }
     youthScore.text = 'Youth: ' + peter.health;
     vial.kill();
