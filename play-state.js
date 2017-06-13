@@ -29,13 +29,13 @@ var playState = {
 
 
     game.physics.startSystem(Phaser.Physics.ARCADE);
-    // game.add.sprite(0, 0, 'sky');
-    game.stage.backgroundColor = '#ffffff' 
+    game.add.sprite(0, 0, 'sky');
+    game.stage.backgroundColor = '#ffffff'
 
     // add ground
-    // ground = game.add.sprite(0, game.world.height - 100, 'ground');
-    // game.physics.arcade.enable(ground);
-    // ground.body.immovable = true;
+    ground = game.add.sprite(0, game.world.height - 100, 'ground');
+    game.physics.arcade.enable(ground);
+    ground.body.immovable = true;
 
     // set the vials
     vials = game.add.group();
@@ -55,7 +55,7 @@ var playState = {
     peter.animations.add('flash', [1,2,1,2,1,2], 10, true);
 
     // set interval loop for dropping blood
-    // game.time.events.repeat(randTime, 1000, this.bloodDrop, this);
+    game.time.events.repeat(randTime, 1000, this.bloodDrop, this);
 
     // Time is cruel and relentless, forever marching forward
     game.time.events.repeat(7000, 1000, this.agePeter, this);
@@ -77,7 +77,7 @@ var playState = {
         fallenVial = game.physics.arcade.collide(vials, ground);
 
     game.physics.arcade.overlap(peter, vials, this.bloodHit, null, this);
-   
+
     // set keyboard controls
     peter.body.velocity.x = 0;
 
