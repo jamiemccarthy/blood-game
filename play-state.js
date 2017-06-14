@@ -238,8 +238,14 @@ var playState = {
       vial.loadTexture("brokenOldBlood", 50);
     }
 
-    // add splashing blood
-    emitter = game.add.emitter(vial.body.x, vial.body.y + 60, 10);
+    this.bloodSplash(vial.body.x, vial.body.y + 60);
+
+    // get rid of the vial after 20s
+    setTimeout(function() {vial.kill();}, 20000);
+  },
+
+  bloodSplash: function(x, y) {
+    emitter = game.add.emitter(x, y, 10);
     emitter.makeParticles(['bloodSplash1', 'bloodSplash2'], undefined, undefined,
         false, // collide
         false, // collideWorldBounds,
@@ -254,9 +260,6 @@ var playState = {
     emitter.start(true,
         600, // duration
         null, 20);
-
-    // get rid of the vial after 20s
-    setTimeout(function() {vial.kill();}, 20000);
   },
 
   bloodHit: function(peter, vial) {
