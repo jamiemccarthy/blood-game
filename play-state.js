@@ -53,14 +53,14 @@ var playState = {
     peter.body.collideWorldBounds = true;
     peter.animations.add('leftRun',         [9,10,11],       13, true);
     peter.animations.add('leftRunFlash',    [9,2,10,2,11,2],  8, true);
-    peter.animations.add('leftJump',        [9,10,11],       13, true);
-    peter.animations.add('leftJumpFlash',   [9,2,10,2,11,2],  8, true);
+    peter.animations.add('leftJump',        [9],             13, true);
+    peter.animations.add('leftJumpFlash',   [9,2],            8, true);
     peter.animations.add('leftStand',       [10],            99, true);
     peter.animations.add('leftStandFlash',  [10,2],           8, true);
     peter.animations.add('rightRun',        [6,7,8],         13, true);
     peter.animations.add('rightRunFlash',   [6,2,7,2,8,2],    8, true);
-    peter.animations.add('rightJump',       [6,7,8],         13, true);
-    peter.animations.add('rightJumpFlash',  [6,2,7,2,8,2],    8, true);
+    peter.animations.add('rightJump',       [6],             13, true);
+    peter.animations.add('rightJumpFlash',  [6,2],            8, true);
     peter.animations.add('rightStand',      [7],             99, true);
     peter.animations.add('rightStandFlash', [7,2],            8, true);
 
@@ -88,8 +88,15 @@ var playState = {
 
     game.physics.arcade.overlap(peter, vials, this.bloodHit, null, this);
 
-    // keys have no effect if his feet aren't on something
-    if (peter.body.touching.down) {
+    if (! peter.body.touching.down) {
+      // If his feet aren't touching something, keys have no effect on
+      // Peter's action. But we still set his animation according to how
+      // he's moving.
+      this.setAnimation(peter.facing);
+    }
+    else {
+      // His feet are on the ground, so set his animation and movement
+      // depending on which keys are being pressed.
       if (cursors.left.isDown) {
         peter.body.velocity.x = -200;
         this.setAnimation('left');
@@ -134,7 +141,8 @@ var playState = {
       ? 'Flash' // not done flashing yet
       : '';     // any flashing was in the past
 
-    animationName = peter.facing + actionName + flashStatus
+    animationName = peter.facing + actionName + flashStatus;
+    // console.log("animationName: " + animationName);
     peter.animations.play(animationName);
   },
 
