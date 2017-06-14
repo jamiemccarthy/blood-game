@@ -140,13 +140,17 @@ var playState = {
   },
 
   brokenVial: function(vial) {
+    // Rotate it, and disable it so it can't collide with anything (including Peter).
     vial.angle = 90;
+    vial.body.enable = false;
+
     vial.healthEffect = 0;
     if (vial.key === "youngBlood") {
       vial.loadTexture("brokenYoungBlood", 50);
     } else {
       vial.loadTexture("brokenOldBlood", 50);
     }
+
     // get rid of the vial after 20s
     setTimeout(function() {vial.kill();}, 20000);
   },
