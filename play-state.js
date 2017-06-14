@@ -314,10 +314,4 @@ var playState = {
   startFlashing: function() {
     peter.flashUntil = new Date(Date.now() + 2 * 1000);
   }
-
-  // To add a jumping effect later, maybe
-  // if (cursors.up.isDown && peter.body.touching.down && hitGround) {
-  //   peter.frame = 4;
-  //   peter.body.velocity.y = -150;
-  // }
 }
