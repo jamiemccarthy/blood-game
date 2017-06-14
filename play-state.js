@@ -11,7 +11,8 @@ var playState = {
     game.load.image('sky', 'img/sky.png');
     game.load.image('ground', 'img/ground2.png');
     game.load.image('oldBlood', 'img/old-blood.png');
-    game.load.image('bloodSplash', 'img/old-blood.png');
+    game.load.image('bloodSplash1', 'img/blood_drop_1.png');
+    game.load.image('bloodSplash2', 'img/blood_drop_2.png');
     game.load.image('youngBlood', 'img/young-blood.png');
     game.load.image('brokenYoungBlood', 'img/broken-young-blood-upright.png');
     game.load.image('brokenOldBlood', 'img/broken-old-blood-upright.png');
@@ -238,15 +239,17 @@ var playState = {
     }
 
     // add splashing blood
-    emitter = game.add.emitter(vial.body.x, vial.body.y + 50, 10);
-    emitter.makeParticles('bloodSplash', undefined, undefined,
+    emitter = game.add.emitter(vial.body.x, vial.body.y + 60, 10);
+    emitter.makeParticles(['bloodSplash1', 'bloodSplash2'], undefined, undefined,
         false, // collide
         false, // collideWorldBounds,
         undefined);
     emitter.gravity = 400;
-    emitter.width = 40;
-    emitter.minParticleScale = 0.2;
-    emitter.maxParticleScale = 1.0;
+    emitter.width = 60;
+    emitter.minParticleScale = 0.1;
+    emitter.maxParticleScale = 0.2;
+    emitter.minAngle = -120;
+    emitter.maxAngle = -60;
     emitter.angularDrag = 50;
     emitter.start(true,
         600, // duration
