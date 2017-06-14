@@ -11,6 +11,7 @@ var playState = {
     game.load.image('sky', 'img/sky.png');
     game.load.image('ground', 'img/ground2.png');
     game.load.image('oldBlood', 'img/old-blood.png');
+    game.load.image('bloodSplash', 'img/old-blood.png');
     game.load.image('youngBlood', 'img/young-blood.png');
     game.load.image('brokenYoungBlood', 'img/broken-young-blood-upright.png');
     game.load.image('brokenOldBlood', 'img/broken-old-blood-upright.png');
@@ -156,6 +157,21 @@ var playState = {
     } else {
       vial.loadTexture("brokenOldBlood", 50);
     }
+
+    // add splashing blood
+    emitter = game.add.emitter(vial.body.x, vial.body.y + 50, 10);
+    emitter.makeParticles('bloodSplash', undefined, undefined,
+        false, // collide
+        false, // collideWorldBounds,
+        undefined);
+    emitter.gravity = 400;
+    emitter.width = 40;
+    emitter.minParticleScale = 0.2;
+    emitter.maxParticleScale = 1.0;
+    emitter.angularDrag = 50;
+    emitter.start(true,
+        600, // duration
+        null, 20);
 
     // get rid of the vial after 20s
     setTimeout(function() {vial.kill();}, 20000);
