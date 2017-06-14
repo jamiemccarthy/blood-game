@@ -98,28 +98,47 @@ var playState = {
       // His feet are on the ground, so set his animation and movement
       // depending on which keys are being pressed.
       if (cursors.left.isDown) {
-        peter.body.velocity.x = -200;
+        this.setVelocityHorizontal('left');
         this.setAnimation('left');
       }
       else if (cursors.right.isDown) {
-        peter.body.velocity.x = 200;
+        this.setVelocityHorizontal('right');
         this.setAnimation('right');
       }
       else {
-        peter.body.velocity.x = 0;
+        this.setVelocityHorizontal('stand');
         this.setAnimation('stand');
       }
 
       // jump?
       if (cursors.up.isDown) {
-        peter.body.velocity.y = -350;
-        peter.body.velocity.x *= 1.5;
+        this.setVelocityJump();
       }
     }
 
     if (peter.health <= 0) {
       this.end();
     }
+  },
+
+  // directions are 'left', 'right' or 'stand'
+  setVelocityHorizontal: function(newDirection) {
+    if (newDirection == 'left') {
+      peter.body.velocity.x = -200;
+    }
+    else if (newDirection === 'stand') {
+      peter.body.velocity.x = 0;
+    }
+    else if (newDirection === 'right') {
+      peter.body.velocity.x = 200;
+    }
+  },
+
+  // This assumes current horizontal velocity is set correctly for
+  // the beginning of a jump.
+  setVelocityJump: function() {
+    peter.body.velocity.y = -350;
+    peter.body.velocity.x *= 1.5;
   },
 
   // directions are 'left', 'right' or 'stand'
