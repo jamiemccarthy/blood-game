@@ -53,10 +53,14 @@ var playState = {
     peter.body.collideWorldBounds = true;
     peter.animations.add('leftRun',         [9,10,11],       13, true);
     peter.animations.add('leftRunFlash',    [9,2,10,2,11,2],  8, true);
+    peter.animations.add('leftJump',        [9,10,11],       13, true);
+    peter.animations.add('leftJumpFlash',   [9,2,10,2,11,2],  8, true);
     peter.animations.add('leftStand',       [10],            99, true);
     peter.animations.add('leftStandFlash',  [10,2],           8, true);
     peter.animations.add('rightRun',        [6,7,8],         13, true);
     peter.animations.add('rightRunFlash',   [6,2,7,2,8,2],    8, true);
+    peter.animations.add('rightJump',       [6,7,8],         13, true);
+    peter.animations.add('rightJumpFlash',  [6,2,7,2,8,2],    8, true);
     peter.animations.add('rightStand',      [7],             99, true);
     peter.animations.add('rightStandFlash', [7,2],            8, true);
 
@@ -114,7 +118,10 @@ var playState = {
   // directions are 'left', 'right' or 'stand'
   setAnimation: function(newDirection) {
     actionName = 'Run';
-    if (newDirection === 'stand') {
+    if (! peter.body.touching.down) {
+      actionName = 'Jump';
+    }
+    else if (newDirection === 'stand') {
       actionName = 'Stand';
     }
     else {
