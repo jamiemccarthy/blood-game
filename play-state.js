@@ -49,7 +49,7 @@ var playState = {
     peter.facing = 'right';
     game.physics.arcade.enable(peter);
     peter.body.bounce.y = 0.2;
-    peter.body.gravity.y = 300;
+    peter.body.gravity.y = 800;
     peter.body.collideWorldBounds = true;
     peter.animations.add('left',            [9,10,11],       13, true);
     peter.animations.add('leftFlash',       [9,2,10,2,11,2],  8, true);
@@ -85,20 +85,26 @@ var playState = {
 
     game.physics.arcade.overlap(peter, vials, this.bloodHit, null, this);
 
-    // set keyboard controls
-    peter.body.velocity.x = 0;
+    // keys have no effect if his feet aren't on something
+    if (peter.body.touching.down) {
+      if (cursors.left.isDown) {
+        peter.body.velocity.x = -200;
+        this.setAnimation('left');
+      }
+      else if (cursors.right.isDown) {
+        peter.body.velocity.x = 200;
+        this.setAnimation('right');
+      }
+      else {
+        peter.body.velocity.x = 0;
+        this.setAnimation('stand');
+      }
 
-    if (cursors.left.isDown) {
-      peter.body.velocity.x = -200;
-      this.setAnimation('left');
-    }
-    else if (cursors.right.isDown) {
-      peter.body.velocity.x = 200;
-      this.setAnimation('right');
-    }
-    else {
-      peter.body.velocity.x = 0;
-      this.setAnimation('stand');
+      // jump?
+      if (cursors.up.isDown) {
+        peter.body.velocity.y = -350;
+        peter.body.velocity.x *= 1.5;
+      }
     }
 
     if (peter.health <= 0) {
