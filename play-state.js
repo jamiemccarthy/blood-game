@@ -106,7 +106,7 @@ var playState = {
       else {
         newDirection = 'stand';
       }
-      this.setVelocityHorizontal(newDirection);
+      this.setVelocityNonjump(newDirection);
       this.setAnimation(newDirection);
 
       // jump?
@@ -121,15 +121,27 @@ var playState = {
   },
 
   // directions are 'left', 'right' or 'stand'
-  setVelocityHorizontal: function(newDirection) {
+  setVelocityNonjump: function(newDirection) {
+    maxMove = 200;
+    deltaForMove = 40;
+    deltaForStand = 40;
     if (newDirection == 'left') {
-      peter.body.velocity.x = -200;
-    }
-    else if (newDirection === 'stand') {
-      peter.body.velocity.x = 0;
+      peter.body.velocity.x -= deltaForMove;
+      if (peter.body.velocity.x < -maxMove) { peter.body.velocity.x = -maxMove; }
     }
     else if (newDirection === 'right') {
-      peter.body.velocity.x = 200;
+      peter.body.velocity.x += deltaForMove;
+      if (peter.body.velocity.x > maxMove) { peter.body.velocity.x = maxMove; }
+    }
+    else if (newDirection === 'stand') {
+      xVelocityAbs = Math.abs(peter.body.velocity.x)
+      if (xVelocityAbs <= deltaForStand) {
+        peter.body.velocity.x = 0;
+      }
+      else {
+        xVelocityVector = peter.body.velocity.x > 0 ? 1 : -1;
+        peter.body.velocity.x -= xVelocityVector * deltaForStand;
+      }
     }
   },
 
