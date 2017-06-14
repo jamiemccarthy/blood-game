@@ -23,7 +23,7 @@ var pregameState = {
     playButton = game.add.button(game.world.centerX - 95, 315, 'playButton', this.startGame, this, 1, 0, 2);
     bloodVials = game.add.sprite(100, 450, 'bloodVials');
     arrowKeys = game.add.sprite(600, 470, 'arrowKeys');
-    playButton.animations.add('blink', [0, 1], 5, true);
+    playButton.animations.add('blink', [0, 1], 2, true);
 
     // Set to 0 so these elements are hidden initially
     title.alpha = 0;
