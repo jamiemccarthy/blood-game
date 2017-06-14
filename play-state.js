@@ -49,18 +49,21 @@ var playState = {
     peter.flashUntil = 0;
     peter.facing = 'right';
     game.physics.arcade.enable(peter);
-    peter.body.bounce.y = 0.2;
+    peter.body.bounce.y = 0.0;
     peter.body.gravity.y = 800;
     peter.body.collideWorldBounds = true;
-    peter.animations.add('left',            [9,10,11],       13, true);
-    peter.animations.add('leftFlash',       [9,2,10,2,11,2],  8, true);
+    peter.animations.add('leftRun',         [11,9,10],       13, true);
+    peter.animations.add('leftRunFlash',    [9,2,10,2,11,2],  8, true);
+    peter.animations.add('leftJump',        [9],             13, true);
+    peter.animations.add('leftJumpFlash',   [9,2],            8, true);
     peter.animations.add('leftStand',       [10],            99, true);
     peter.animations.add('leftStandFlash',  [10,2],           8, true);
-    peter.animations.add('right',           [6,7,8],         13, true);
-    peter.animations.add('rightFlash',      [6,2,7,2,8,2],    8, true);
+    peter.animations.add('rightRun',        [8,6,7],         13, true);
+    peter.animations.add('rightRunFlash',   [6,2,7,2,8,2],    8, true);
+    peter.animations.add('rightJump',       [6],             13, true);
+    peter.animations.add('rightJumpFlash',  [6,2],            8, true);
     peter.animations.add('rightStand',      [7],             99, true);
     peter.animations.add('rightStandFlash', [7,2],            8, true);
-    // peter.animations.add('jump',       [2],             10, true);
 
     // set interval loop for dropping blood
     game.time.events.repeat(randTime, 1000, this.bloodDrop, this);
@@ -86,26 +89,32 @@ var playState = {
 
     game.physics.arcade.overlap(peter, vials, this.bloodHit, null, this);
 
-    // keys have no effect if his feet aren't on something
-    if (peter.body.touching.down) {
+    if (! peter.body.touching.down) {
+      // If his feet aren't touching something, keys have no effect on
+      // Peter's action. But we still set his animation according to how
+      // he's moving.
+      this.setAnimation(peter.facing);
+    }
+    else {
+      // His feet are on the ground, so set his animation and movement
+      // depending on which keys are being pressed.
       if (cursors.left.isDown) {
-        peter.body.velocity.x = -200;
-        this.setAnimation('left');
+        newDirection = 'left';
       }
       else if (cursors.right.isDown) {
-        peter.body.velocity.x = 200;
-        this.setAnimation('right');
+        newDirection = 'right';
       }
       else {
-        peter.body.velocity.x = 0;
-        this.setAnimation('stand');
+        newDirection = 'stand';
       }
 
-      // jump?
       if (cursors.up.isDown) {
-        peter.body.velocity.y = -350;
-        peter.body.velocity.x *= 1.5;
+        this.setVelocityJump(newDirection);
       }
+      else {
+        this.setVelocityNonjump(newDirection);
+      }
+      this.setAnimation(newDirection);
     }
 
     if (peter.health <= 0) {
@@ -114,21 +123,91 @@ var playState = {
   },
 
   // directions are 'left', 'right' or 'stand'
-  setAnimation: function(newDirection) {
-    if (newDirection === 'left') {
-      animationName = 'left';
-      peter.facing = 'left';
+  setVelocityNonjump: function(newDirection) {
+    maxMove = 200;
+    deltaForMove = 40;
+    deltaForStand = 40;
+    if (newDirection == 'left') {
+      peter.body.velocity.x -= deltaForMove;
+      if (peter.body.velocity.x < -maxMove) { peter.body.velocity.x = -maxMove; }
     }
     else if (newDirection === 'right') {
-      animationName = 'right';
-      peter.facing = 'right';
+      peter.body.velocity.x += deltaForMove;
+      if (peter.body.velocity.x > maxMove) { peter.body.velocity.x = maxMove; }
     }
-    else { // must be 'stand'
-      animationName = peter.facing + 'Stand';
+    else if (newDirection === 'stand') {
+      xVelocityAbs = Math.abs(peter.body.velocity.x)
+      if (xVelocityAbs <= deltaForStand) {
+        peter.body.velocity.x = 0;
+      }
+      else {
+        xVelocityVector = peter.body.velocity.x > 0 ? 1 : -1;
+        peter.body.velocity.x -= xVelocityVector * deltaForStand;
+      }
     }
-    if (peter.flashUntil > new Date()) { // still flashing?
-      animationName = animationName + 'Flash';
+  },
+
+  // directions are 'left', 'right' or 'stand'
+  setVelocityJump: function(newDirection) {
+    // Whatever else happens, we launch vertically.
+    peter.body.velocity.y = -350;
+
+    if (newDirection === 'stand') {
+      // Just jump with current facing and speed.
     }
+    else if (newDirection === 'left' || newDirection === 'right') {
+      // Horizontal velocity changes, as well as maximum velocity,
+      // can be quicker when jumping.
+      jumpSpeedBoost = 1.3;
+      minJumpSpeed = 100;
+
+      // Set the current and new vector values.
+      newDirectionVector     =  newDirection === 'right' ? 1 : -1;
+      currentXVelocityVector = peter.body.velocity.x > 0 ? 1 : -1;
+      if (peter.body.velocity.x == 0) { currentXVelocityVector = 0; }
+
+      if (newDirectionVector == -currentXVelocityVector) {
+        // We're jumping in the opposite direction as we're moving.
+        // Peter will turn around and jump straight up.
+        peter.body.velocity.x = 0;
+      }
+      else {
+        // Peter's either standing still or moving in the right direction,
+        // but it could be quickly or slowly. Either way, increase his speed.
+        if (Math.abs(peter.body.velocity.x) < minJumpSpeed) {
+          // He's moving slowly or standing still. Give him a speed boost
+          // to some minimum speed.
+          peter.body.velocity.x = minJumpSpeed * newDirectionVector;
+        }
+        else {
+          // He's moving. Give him a speed boost.
+          peter.body.velocity.x *= jumpSpeedBoost;
+        }
+      }
+    }
+  },
+
+  // directions are 'left', 'right' or 'stand'
+  setAnimation: function(newDirection) {
+    actionName = 'Run';
+    if (! peter.body.touching.down) {
+      actionName = 'Jump';
+    }
+    else if (newDirection === 'stand') {
+      actionName = 'Stand';
+    }
+    else {
+      if (! (newDirection === 'left' || newDirection === 'right')) {
+        console.log("bad newDirection " + newDirection);
+      }
+      peter.facing = newDirection;
+    }
+    flashStatus = peter.flashUntil > new Date()
+      ? 'Flash' // not done flashing yet
+      : '';     // any flashing was in the past
+
+    animationName = peter.facing + actionName + flashStatus;
+    // console.log("animationName: " + animationName);
     peter.animations.play(animationName);
   },
 
