@@ -98,17 +98,16 @@ var playState = {
       // His feet are on the ground, so set his animation and movement
       // depending on which keys are being pressed.
       if (cursors.left.isDown) {
-        this.setVelocityHorizontal('left');
-        this.setAnimation('left');
+        newDirection = 'left';
       }
       else if (cursors.right.isDown) {
-        this.setVelocityHorizontal('right');
-        this.setAnimation('right');
+        newDirection = 'right';
       }
       else {
-        this.setVelocityHorizontal('stand');
-        this.setAnimation('stand');
+        newDirection = 'stand';
       }
+      this.setVelocityHorizontal(newDirection);
+      this.setAnimation(newDirection);
 
       // jump?
       if (cursors.up.isDown) {
