@@ -14,7 +14,7 @@ var playState = {
     game.load.image('youngBlood', 'img/young-blood.png');
     game.load.image('brokenYoungBlood', 'img/broken-young-blood-upright.png');
     game.load.image('brokenOldBlood', 'img/broken-old-blood-upright.png');
-    game.load.spritesheet('character', 'img/character-spritesheet.png', 100, 96);
+    game.load.spritesheet('character', 'img/character-spritesheet.png', 100, 94.75);
   },
 
   create: function() {
