@@ -22,7 +22,6 @@ var playState = {
   create: function() {
     var youngBloodVial,
         oldBloodVial,
-        randTime = game.rnd.pick([2500, 3000, 3500, 4000, 5000, 6000]),
         timer = this;
 
     timer.startTime = new Date();
@@ -45,10 +44,13 @@ var playState = {
 
     // set the character
     peter = game.add.sprite(32, game.world.height - 305, 'character');
-    peter.health = 70;
-    peter.maxHealth = 100;
+    peter.bloodPower = 70;
     peter.flashUntil = 0;
     peter.facing = 'right';
+
+    peter.bloodYoungPercent = 50;
+    peter.vialGravity = 150;
+
     game.physics.arcade.enable(peter);
     peter.body.bounce.y = 0.0;
     peter.body.gravity.y = 800;
@@ -67,10 +69,10 @@ var playState = {
     peter.animations.add('rightStandFlash', [7,2],            8, true);
 
     // set interval loop for dropping blood
-    game.time.events.repeat(randTime, 1000, this.bloodDrop, this);
+    game.time.events.repeat(Phaser.Timer.SECOND * 2, 99999, this.bloodDrop, this);
 
     // Time is cruel and relentless, forever marching forward
-    game.time.events.repeat(7000, 1000, this.agePeter, this);
+    game.time.events.repeat(Phaser.Timer.SECOND, 99999, this.agePeter, this);
 
     cursors = game.input.keyboard.createCursorKeys();
 
@@ -81,7 +83,7 @@ var playState = {
     });
 
     // get that score
-    youthScore = game.add.text(16, 16, 'Youth: ' + peter.health, { font: '25px VT323', fill: '#000' });
+    youthScore = game.add.text(16, 16, 'Youth: ' + peter.bloodPower, { font: '25px VT323', fill: '#000' });
   },
 
   update: function() {
@@ -118,7 +120,7 @@ var playState = {
       this.setAnimation(newDirection);
     }
 
-    if (peter.health <= 0) {
+    if (peter.bloodPower <= 0) {
       this.end();
     }
   },
@@ -208,22 +210,26 @@ var playState = {
       : '';     // any flashing was in the past
 
     animationName = peter.facing + actionName + flashStatus;
-    // console.log("animationName: " + animationName);
     peter.animations.play(animationName);
   },
 
   bloodDrop: function() {
-    var vial,
-        bloodTypes = ['youngBlood', 'oldBlood'];
-    vial = vials.create(game.world.randomX, -30, game.rnd.pick(bloodTypes));
-    vial.body.gravity.y = 150;
+    bloodType = 'oldBlood';
+    if (Math.random() * 100 < peter.bloodYoungPercent) {
+      bloodType = 'youngBlood';
+      peter.bloodYoungPercent -= 1;
+      if (peter.bloodYoungPercent < 25) { peter.bloodYoungPercent = 25; }
+      peter.vialGravity += 10;
+      if (peter.vialGravity > 400) { peter.vialGravity = 400; }
+    }
+    var vial = vials.create(game.world.randomX, -30, bloodType);
+    vial.body.gravity.y = peter.vialGravity;
     vial.body.collideWorldBounds = true;
 
     // set up vial for collision change
     vial.body.onCollide = new Phaser.Signal();
     vial.body.onCollide.add(this.brokenVial, this);
     vial.anchor.setTo(0.75, 0.75);
-    vial.healthEffect = 10;
   },
 
   brokenVial: function(vial) {
@@ -231,7 +237,6 @@ var playState = {
     vial.angle = 90;
     vial.body.enable = false;
 
-    vial.healthEffect = 0;
     if (vial.key === "youngBlood") {
       vial.loadTexture("brokenYoungBlood", 50);
     } else {
@@ -240,8 +245,8 @@ var playState = {
 
     this.bloodSplash(vial.body.x, vial.body.y + 60);
 
-    // get rid of the vial after 20s
-    setTimeout(function() {vial.kill();}, 20000);
+    // get rid of the vial after 10s
+    setTimeout(function() {vial.kill();}, 10000);
   },
 
   bloodSplash: function(x, y) {
@@ -264,17 +269,18 @@ var playState = {
 
   bloodHit: function(peter, vial) {
     if (vial.key === "youngBlood") {
-      peter.heal(vial.healthEffect);
+      peter.bloodPower += 10;
     } else if (vial.key === "oldBlood") {
-      peter.damage(vial.healthEffect);
+      peter.bloodPower -= 10;
       this.startFlashing();
     }
-    youthScore.text = 'Youth: ' + peter.health;
+    youthScore.text = 'Youth: ' + peter.bloodPower;
     vial.kill();
   },
 
   agePeter: function() {
-    peter.damage(10);
+    peter.bloodPower -= 1;
+    youthScore.text = 'Youth: ' + peter.bloodPower;
   },
 
   end: function() {
@@ -303,7 +309,7 @@ var playState = {
     formattedTime += ":";
     formattedTime += (seconds < 10) ? "0" + seconds : seconds;
 
-    if (formattedTime === "00:00") {
+    if (timeRemaining < 1) {
       this.end();
     } else {
       result += formattedTime;
