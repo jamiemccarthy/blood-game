@@ -106,13 +106,14 @@ var playState = {
       else {
         newDirection = 'stand';
       }
-      this.setVelocityNonjump(newDirection);
-      this.setAnimation(newDirection);
 
-      // jump?
       if (cursors.up.isDown) {
-        this.setVelocityJump();
+        this.setVelocityJump(newDirection);
       }
+      else {
+        this.setVelocityNonjump(newDirection);
+      }
+      this.setAnimation(newDirection);
     }
 
     if (peter.health <= 0) {
@@ -145,11 +146,44 @@ var playState = {
     }
   },
 
-  // This assumes current horizontal velocity is set correctly for
-  // the beginning of a jump.
-  setVelocityJump: function() {
+  // directions are 'left', 'right' or 'stand'
+  setVelocityJump: function(newDirection) {
+    // Whatever else happens, we launch vertically.
     peter.body.velocity.y = -350;
-    peter.body.velocity.x *= 1.5;
+
+    if (newDirection === 'stand') {
+      // Just jump with current facing and speed.
+    }
+    else if (newDirection === 'left' || newDirection === 'right') {
+      // Horizontal velocity changes, as well as maximum velocity,
+      // can be quicker when jumping.
+      jumpSpeedBoost = 1.3;
+      minJumpSpeed = 100;
+
+      // Set the current and new vector values.
+      newDirectionVector     =  newDirection === 'right' ? 1 : -1;
+      currentXVelocityVector = peter.body.velocity.x > 0 ? 1 : -1;
+      if (peter.body.velocity.x == 0) { currentXVelocityVector = 0; }
+
+      if (newDirectionVector == -currentXVelocityVector) {
+        // We're jumping in the opposite direction as we're moving.
+        // Peter will turn around and jump straight up.
+        peter.body.velocity.x = 0;
+      }
+      else {
+        // Peter's either standing still or moving in the right direction,
+        // but it could be quickly or slowly. Either way, increase his speed.
+        if (Math.abs(peter.body.velocity.x) < minJumpSpeed) {
+          // He's moving slowly or standing still. Give him a speed boost
+          // to some minimum speed.
+          peter.body.velocity.x = minJumpSpeed * newDirectionVector;
+        }
+        else {
+          // He's moving. Give him a speed boost.
+          peter.body.velocity.x *= jumpSpeedBoost;
+        }
+      }
+    }
   },
 
   // directions are 'left', 'right' or 'stand'
