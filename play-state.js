@@ -274,13 +274,32 @@ var playState = {
       peter.bloodPower -= 10;
       this.startFlashing();
     }
-    youthScore.text = 'Youth: ' + peter.bloodPower;
+    this.updateBloodPowerText(peter);
     vial.kill();
   },
 
   agePeter: function() {
     peter.bloodPower -= 1;
+    this.updateBloodPowerText(peter);
+  },
+
+  updateBloodPowerText: function(peter) {
     youthScore.text = 'Youth: ' + peter.bloodPower;
+    if (peter.bloodPower < 50) {
+      if (peter.textTweening === undefined) {
+        peter.textTweening = game.add.tween(youthScore.scale).to(
+          { x: 1.3, y: 1.3 },
+          200,
+          "Sine.easeInOut",
+          true, 0, -1, true);
+      }
+    }
+    else if (peter.bloodPower > 50) {
+      if (peter.textTweening) {
+        peter.textTweening.kill();
+        peter.textTweening = undefined;
+      }
+    }
   },
 
   end: function() {
