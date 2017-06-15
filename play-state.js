@@ -21,13 +21,7 @@ var playState = {
 
   create: function() {
     var youngBloodVial,
-        oldBloodVial,
-        timer = this;
-
-    timer.startTime = new Date();
-    timer.totalTime = 90;
-    timer.timeElapsed = 0;
-
+        oldBloodVial;
 
     game.physics.startSystem(Phaser.Physics.ARCADE);
     game.add.sprite(0, 0, 'sky');
@@ -44,7 +38,7 @@ var playState = {
 
     // set the character
     peter = game.add.sprite(32, game.world.height - 305, 'character');
-    peter.bloodPower = 70;
+    peter.bloodPower = 49;
     peter.flashUntil = 0;
     peter.facing = 'right';
 
@@ -76,14 +70,9 @@ var playState = {
 
     cursors = game.input.keyboard.createCursorKeys();
 
-    // add the timer
-    timer.createTimer();
-    timer.gameTimer = game.time.events.loop(100, function() {
-      timer.updateTimer();
-    });
-
     // get that score
-    youthScore = game.add.text(16, 16, 'Youth: ' + peter.bloodPower, { font: '25px VT323', fill: '#000' });
+    game.add.text(20, 16, 'Youth', { font: '25px VT323', fill: '#000' });
+    youthScore = game.add.text(20, 35, peter.bloodPower, { font: '60px VT323', fill: '#000' });
   },
 
   update: function() {
@@ -120,7 +109,7 @@ var playState = {
       this.setAnimation(newDirection);
     }
 
-    if (peter.bloodPower <= 0) {
+    if (peter.bloodPower >= 150) {
       this.end();
     }
   },
@@ -269,52 +258,22 @@ var playState = {
 
   bloodHit: function(peter, vial) {
     if (vial.key === "youngBlood") {
-      peter.bloodPower += 10;
-    } else if (vial.key === "oldBlood") {
       peter.bloodPower -= 10;
+    } else if (vial.key === "oldBlood") {
+      peter.bloodPower += 10;
       this.startFlashing();
     }
-    youthScore.text = 'Youth: ' + peter.bloodPower;
+    youthScore.text = peter.bloodPower;
     vial.kill();
   },
 
   agePeter: function() {
-    peter.bloodPower -= 1;
-    youthScore.text = 'Youth: ' + peter.bloodPower;
+    peter.bloodPower += 1;
+    youthScore.text = peter.bloodPower;
   },
 
   end: function() {
     game.state.start('end');
-  },
-
-  createTimer: function() {
-    var timer = this;
-    timer.timeLabel = game.add.text(250, 16, "00:00", {font: "25px VT323", fill: "#000"});
-    timer.timeLabel.anchor.setTo(0.5, 0);
-    timer.timeLabel.align = 'center';
-  },
-
-  updateTimer: function() {
-    var timer = this,
-        currentTime = new Date(),
-        timeDifference = timer.startTime.getTime() - currentTime.getTime();
-    timer.timeElapsed = Math.abs(timeDifference / 1000);
-
-    var timeRemaining = timer.totalTime - timer.timeElapsed;
-    var minutes = Math.floor(timeRemaining / 60);
-    var seconds = Math.floor(timeRemaining) - (60 * minutes);
-    var result = "Time left: ";
-    var formattedTime = "";
-    formattedTime += (minutes < 10) ? "0" + minutes : minutes;
-    formattedTime += ":";
-    formattedTime += (seconds < 10) ? "0" + seconds : seconds;
-
-    if (timeRemaining < 1) {
-      this.end();
-    } else {
-      result += formattedTime;
-      timer.timeLabel.text = result;
-    }
   },
 
   startFlashing: function() {
