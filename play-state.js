@@ -38,7 +38,7 @@ var playState = {
 
     // set the character
     peter = game.add.sprite(32, game.world.height - 305, 'character');
-    peter.bloodPower = 70;
+    peter.bloodPower = 49;
     peter.flashUntil = 0;
     peter.facing = 'right';
 
@@ -71,7 +71,8 @@ var playState = {
     cursors = game.input.keyboard.createCursorKeys();
 
     // get that score
-    youthScore = game.add.text(16, 16, 'Youth: ' + peter.bloodPower, { font: '25px VT323', fill: '#000' });
+    game.add.text(20, 16, 'Youth', { font: '25px VT323', fill: '#000' });
+    youthScore = game.add.text(20, 35, peter.bloodPower, { font: '60px VT323', fill: '#000' });
   },
 
   update: function() {
@@ -108,7 +109,7 @@ var playState = {
       this.setAnimation(newDirection);
     }
 
-    if (peter.bloodPower <= 0) {
+    if (peter.bloodPower >= 150) {
       this.end();
     }
   },
@@ -257,18 +258,18 @@ var playState = {
 
   bloodHit: function(peter, vial) {
     if (vial.key === "youngBlood") {
-      peter.bloodPower += 10;
-    } else if (vial.key === "oldBlood") {
       peter.bloodPower -= 10;
+    } else if (vial.key === "oldBlood") {
+      peter.bloodPower += 10;
       this.startFlashing();
     }
-    youthScore.text = 'Youth: ' + peter.bloodPower;
+    youthScore.text = peter.bloodPower;
     vial.kill();
   },
 
   agePeter: function() {
-    peter.bloodPower -= 1;
-    youthScore.text = 'Youth: ' + peter.bloodPower;
+    peter.bloodPower += 1;
+    youthScore.text = peter.bloodPower;
   },
 
   end: function() {
