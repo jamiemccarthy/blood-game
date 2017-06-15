@@ -109,7 +109,7 @@ var playState = {
       this.setAnimation(newDirection);
     }
 
-    if (peter.bloodPower >= 150) {
+    if (peter.bloodPower >= 125) {
       this.end();
     }
   },
@@ -218,7 +218,7 @@ var playState = {
     // set up vial for collision change
     vial.body.onCollide = new Phaser.Signal();
     vial.body.onCollide.add(this.brokenVial, this);
-    vial.anchor.setTo(0.75, 0.75);
+    vial.anchor.setTo(.75, .99);
   },
 
   brokenVial: function(vial) {

@@ -55,7 +55,7 @@ var endState = {
     // set up vial for collision change
     vial.body.onCollide = new Phaser.Signal();
     vial.body.onCollide.add(this.brokenVial, this);
-    vial.anchor.setTo(.75, .75);
+    vial.anchor.setTo(.75, .99);
   },
 
   brokenVial: function(vial) {
