@@ -3,6 +3,7 @@ var title,
     playButton,
     arrowKeys,
     bloodVials,
+    goals,
     music;
 
 var pregameState = {
@@ -13,6 +14,7 @@ var pregameState = {
     game.load.spritesheet('playButton', 'img/start_screen/play_button_spritesheet.png', 189, 67);
     game.load.image('arrowKeys', 'img/start_screen/arrow_keys.png');
     game.load.image('bloodVials', 'img/start_screen/blood_vials.png');
+    game.load.image('goals', 'img/start_screen/goal_explanation.png');
     game.load.audio('introMusic', 'audio/intro_music.mp3');
   },
 
@@ -21,8 +23,9 @@ var pregameState = {
     title = game.add.sprite(game.world.centerX - 260, 60, 'title');
     subtitle = game.add.sprite(game.world.centerX - 402, 215, 'subtitle');
     playButton = game.add.button(game.world.centerX - 95, 315, 'playButton', this.startGame, this, 1, 0, 2);
-    bloodVials = game.add.sprite(100, 450, 'bloodVials');
-    arrowKeys = game.add.sprite(600, 470, 'arrowKeys');
+    bloodVials = game.add.sprite(0, 450, 'bloodVials');
+    arrowKeys = game.add.sprite(380, 470, 'arrowKeys');
+    goals = game.add.sprite(680, 455, 'goals');
     playButton.animations.add('blink', [0, 1], 2, true);
 
     // Set to 0 so these elements are hidden initially
