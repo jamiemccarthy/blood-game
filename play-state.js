@@ -107,7 +107,12 @@ var playState = {
       }
 
       if (jump1Key.isDown || jump2Key.isDown) {
-        this.setVelocityJump(newDirection);
+        if (peter.bloodPower < 70) {
+          this.setVelocityJump(newDirection);
+        }
+        else {
+          // You can't jump when you're 70 or older, it's too dangerous
+        }
       }
       else {
         this.setVelocityNonjump(newDirection);
@@ -122,7 +127,8 @@ var playState = {
 
   // directions are 'left', 'right' or 'stand'
   setVelocityNonjump: function(newDirection) {
-    maxMove = 200;
+    // Speed Peter can move is cut roughly in half as he ages.
+    maxMove = 250 - peter.bloodPower;
     deltaForMove = 40;
     deltaForStand = 40;
     if (newDirection == 'left') {
@@ -148,7 +154,8 @@ var playState = {
   // directions are 'left', 'right' or 'stand'
   setVelocityJump: function(newDirection) {
     // Whatever else happens, we launch vertically.
-    peter.body.velocity.y = -350;
+    // Height/speed of the jump is cut roughly in half as Peter ages.
+    peter.body.velocity.y = -400 + (peter.bloodPower*2);
 
     if (newDirection === 'stand') {
       // Just jump with current facing and speed.
