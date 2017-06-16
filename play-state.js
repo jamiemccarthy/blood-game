@@ -23,11 +23,11 @@ var playState = {
     game.load.spritesheet('character', 'img/character-spritesheet.png', 100, 94.75);
     game.load.audio('playMusic', 'audio/Arcade-Fantasy.mp3');
     game.load.audio('gotYoungBlood', 'audio/162467__kastenfrosch__gotitem.mp3');
-    game.load.audio('gotOldBlood', 'audio/162467__kastenfrosch__gotitem.mp3');
-    game.load.audio('jump', 'audio/162467__kastenfrosch__gotitem.mp3');
-    game.load.audio('failToJump', 'audio/162467__kastenfrosch__gotitem.mp3');
-    game.load.audio('land', 'audio/162467__kastenfrosch__gotitem.mp3');
-    game.load.audio('vialBreak', 'audio/162467__kastenfrosch__gotitem.mp3');
+    game.load.audio('gotOldBlood', 'audio/338960__dorr1__yuck.mp3');
+    game.load.audio('jump', 'audio/157569__elektroproleter__cartoon-jump.mp3');
+    game.load.audio('failToJump', 'audio/252235__reitanna__soft-grunt.wav');
+    game.load.audio('land', 'audio/146981__jwmalahy__thud1.wav');
+    game.load.audio('vialBreak', 'audio/93079__cgeffex__splash.mp3');
   },
 
   create: function() {
@@ -44,13 +44,15 @@ var playState = {
     ground.body.immovable = true;
 
     // start the music
-    music = game.add.audio('playMusic');
-    music.play();
+    audioMusic = game.add.audio('playMusic', 0.2, true);
+    audioMusic.play();
+
+    // prep the sound effects
     audioGotYoungBlood = game.add.audio('gotYoungBlood');
-    audioGotOldBlood = game.add.audio('gotOldBlood');
-    audioJump = game.add.audio('jump');
+    audioGotOldBlood = game.add.audio('gotOldBlood', 2.0);
+    audioJump = game.add.audio('jump', 2.0);
     audioFailToJump = game.add.audio('failToJump');
-    audioLand = game.add.audio('land');
+    audioLand = game.add.audio('land', 0.1);
     audioVialBreak = game.add.audio('vialBreak');
 
     // set the vials
@@ -326,6 +328,7 @@ var playState = {
   },
 
   end: function() {
+    audioMusic.stop();
     game.state.start('end');
   },
 

@@ -1,6 +1,7 @@
 var title,
     ground,
-    vials;
+    vials,
+    audioMusic;
 
 var endState = {
   preload: function() {
@@ -15,6 +16,7 @@ var endState = {
     game.load.image('bloodSplash2', 'img/blood_drop_2.png');
     game.load.image('brokenYoungBlood', 'img/broken-young-blood-upright.png');
     game.load.image('brokenOldBlood', 'img/broken-old-blood-upright.png');
+    game.load.audio('endMusic', 'audio/Heartbeat-Drone2.mp3');
   },
 
   create: function() {
@@ -26,6 +28,9 @@ var endState = {
     title.animations.play('blink');
 
     rkey.onDown.addOnce(this.restart, this);
+
+    audioMusic = game.add.audio('endMusic', 5.0, true);
+    audioMusic.play();
 
     // add ground
     ground = game.add.sprite(0, game.world.height - 100, 'ground');
@@ -90,6 +95,7 @@ var endState = {
   },
 
   restart: function() {
+    audioMusic.stop();
     game.state.start('play');
   }
 }
