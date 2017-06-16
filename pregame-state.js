@@ -45,6 +45,7 @@ var pregameState = {
   },
 
   startGame: function() {
+    music.stop();
     game.state.start('play');
   }
 }

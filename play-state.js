@@ -4,7 +4,10 @@ var ground,
     bloodLoop, bloodTime,
     leftKey, rightKey, jumpKey,
     newVial = true,
-    youthScore;
+    youthScore,
+    audioMusic, audioGotYoungBlood, audioGotOldBlood,
+    audioJump, audioFailToJump, audioLand,
+    audioVialBreak;
 
 var playState = {
 
@@ -18,6 +21,13 @@ var playState = {
     game.load.image('brokenYoungBlood', 'img/broken-young-blood-upright.png');
     game.load.image('brokenOldBlood', 'img/broken-old-blood-upright.png');
     game.load.spritesheet('character', 'img/character-spritesheet.png', 100, 94.75);
+    game.load.audio('playMusic', 'audio/Arcade-Fantasy.mp3');
+    game.load.audio('gotYoungBlood', 'audio/162467__kastenfrosch__gotitem.mp3');
+    game.load.audio('gotOldBlood', 'audio/162467__kastenfrosch__gotitem.mp3');
+    game.load.audio('jump', 'audio/162467__kastenfrosch__gotitem.mp3');
+    game.load.audio('failToJump', 'audio/162467__kastenfrosch__gotitem.mp3');
+    game.load.audio('land', 'audio/162467__kastenfrosch__gotitem.mp3');
+    game.load.audio('vialBreak', 'audio/162467__kastenfrosch__gotitem.mp3');
   },
 
   create: function() {
@@ -33,6 +43,16 @@ var playState = {
     game.physics.arcade.enable(ground);
     ground.body.immovable = true;
 
+    // start the music
+    music = game.add.audio('playMusic');
+    music.play();
+    audioGotYoungBlood = game.add.audio('gotYoungBlood');
+    audioGotOldBlood = game.add.audio('gotOldBlood');
+    audioJump = game.add.audio('jump');
+    audioFailToJump = game.add.audio('failToJump');
+    audioLand = game.add.audio('land');
+    audioVialBreak = game.add.audio('vialBreak');
+
     // set the vials
     vials = game.add.group();
     vials.enableBody = true;
@@ -42,6 +62,7 @@ var playState = {
     peter.bloodPower = 49;
     peter.flashUntil = 0;
     peter.facing = 'right';
+    peter.airborne = true;
 
     peter.bloodYoungPercent = 50;
     peter.vialGravity = 150;
@@ -91,9 +112,16 @@ var playState = {
       // If his feet aren't touching something, keys have no effect on
       // Peter's action. But we still set his animation according to how
       // he's moving.
+      peter.airborne = true;
       this.setAnimation(peter.facing);
     }
     else {
+      // Did he just land?
+      if (peter.airborne) {
+        audioLand.play();
+        peter.airborne = false;
+      }
+
       // His feet are on the ground, so set his animation and movement
       // depending on which keys are being pressed.
       if (leftKey.isDown) {
@@ -109,9 +137,11 @@ var playState = {
       if (jump1Key.isDown || jump2Key.isDown) {
         if (peter.bloodPower < 70) {
           this.setVelocityJump(newDirection);
+          audioJump.play();
         }
         else {
           // You can't jump when you're 70 or older, it's too dangerous
+          audioFailToJump.play();
         }
       }
       else {
@@ -153,6 +183,7 @@ var playState = {
 
   // directions are 'left', 'right' or 'stand'
   setVelocityJump: function(newDirection) {
+
     // Whatever else happens, we launch vertically.
     // Height/speed of the jump is cut roughly in half as Peter ages.
     peter.body.velocity.y = -400 + (peter.bloodPower*2);
@@ -252,6 +283,7 @@ var playState = {
   },
 
   bloodSplash: function(x, y) {
+    audioVialBreak.play();
     emitter = game.add.emitter(x, y, 10);
     emitter.makeParticles(['bloodSplash1', 'bloodSplash2'], undefined, undefined,
         false, // collide
@@ -271,6 +303,7 @@ var playState = {
 
   bloodHit: function(peter, vial) {
     if (vial.key === "youngBlood") {
+      audioGotYoungBlood.play();
       peter.bloodPower -= 10;
       // Don't age him into childhood
       peter.bloodPower = Math.max(18, peter.bloodPower);
@@ -279,6 +312,7 @@ var playState = {
       game.time.events.remove(bloodLoop);
       bloodLoop = game.time.events.loop(bloodTime, this.bloodDrop, this);
     } else if (vial.key === "oldBlood") {
+      audioGotOldBlood.play();
       peter.bloodPower += 10;
       this.startFlashing();
     }
