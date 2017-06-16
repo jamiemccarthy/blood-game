@@ -1,6 +1,7 @@
 var ground,
     peter,
     vials,
+    bloodLoop, bloodTime,
     leftKey, rightKey, jumpKey,
     newVial = true,
     youthScore;
@@ -68,10 +69,12 @@ var playState = {
     jump2Key = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
     // set interval loop for dropping blood
-    game.time.events.repeat(Phaser.Timer.SECOND * 2, 99999, this.bloodDrop, this);
+    bloodTime = Phaser.Timer.SECOND * 2;
+    bloodLoop = game.time.events.loop(bloodTime, this.bloodDrop, this);
 
     // Time is cruel and relentless, forever marching forward
-    game.time.events.repeat(Phaser.Timer.SECOND, 99999, this.agePeter, this);
+    // game.time.events.repeat(Phaser.Timer.SECOND, 99999, this.agePeter, this);
+    game.time.events.loop(Phaser.Timer.SECOND, this.agePeter, this);
 
     // get that score
     game.add.text(20, 16, 'Youth', { font: '25px VT323', fill: '#000' });
@@ -264,6 +267,10 @@ var playState = {
       peter.bloodPower -= 10;
       // Don't age him into childhood
       peter.bloodPower = Math.max(18, peter.bloodPower);
+      // Speed up the blood. Remove the previous blood timer and add another.
+      bloodTime = Math.max(bloodTime - (Phaser.Timer.SECOND / 20), Phaser.Timer.SECOND * 1);
+      game.time.events.remove(bloodLoop);
+      bloodLoop = game.time.events.loop(bloodTime, this.bloodDrop, this);
     } else if (vial.key === "oldBlood") {
       peter.bloodPower += 10;
       this.startFlashing();
