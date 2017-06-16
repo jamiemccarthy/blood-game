@@ -206,8 +206,8 @@ var playState = {
     bloodType = 'oldBlood';
     if (Math.random() * 100 < peter.bloodYoungPercent) {
       bloodType = 'youngBlood';
-      peter.bloodYoungPercent -= 1;
-      if (peter.bloodYoungPercent < 25) { peter.bloodYoungPercent = 25; }
+      peter.bloodYoungPercent -= 3;
+      if (peter.bloodYoungPercent < 20) { peter.bloodYoungPercent = 20; }
       peter.vialGravity += 10;
       if (peter.vialGravity > 400) { peter.vialGravity = 400; }
     }
@@ -259,6 +259,8 @@ var playState = {
   bloodHit: function(peter, vial) {
     if (vial.key === "youngBlood") {
       peter.bloodPower -= 10;
+      // Don't age him into childhood
+      peter.bloodPower = Math.max(18, peter.bloodPower);
     } else if (vial.key === "oldBlood") {
       peter.bloodPower += 10;
       this.startFlashing();
