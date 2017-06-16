@@ -1,7 +1,7 @@
 var ground,
     peter,
     vials,
-    cursors,
+    leftKey, rightKey, jumpKey,
     newVial = true,
     youthScore;
 
@@ -62,13 +62,16 @@ var playState = {
     peter.animations.add('rightStand',      [7],             99, true);
     peter.animations.add('rightStandFlash', [7,2],            8, true);
 
+    leftKey = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
+    rightKey = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
+    jump1Key = game.input.keyboard.addKey(Phaser.Keyboard.UP);
+    jump2Key = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+
     // set interval loop for dropping blood
     game.time.events.repeat(Phaser.Timer.SECOND * 2, 99999, this.bloodDrop, this);
 
     // Time is cruel and relentless, forever marching forward
     game.time.events.repeat(Phaser.Timer.SECOND, 99999, this.agePeter, this);
-
-    cursors = game.input.keyboard.createCursorKeys();
 
     // get that score
     game.add.text(20, 16, 'Youth', { font: '25px VT323', fill: '#000' });
@@ -90,17 +93,17 @@ var playState = {
     else {
       // His feet are on the ground, so set his animation and movement
       // depending on which keys are being pressed.
-      if (cursors.left.isDown) {
+      if (leftKey.isDown) {
         newDirection = 'left';
       }
-      else if (cursors.right.isDown) {
+      else if (rightKey.isDown) {
         newDirection = 'right';
       }
       else {
         newDirection = 'stand';
       }
 
-      if (cursors.up.isDown) {
+      if (jump1Key.isDown || jump2Key.isDown) {
         this.setVelocityJump(newDirection);
       }
       else {
