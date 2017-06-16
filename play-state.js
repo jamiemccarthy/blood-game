@@ -268,7 +268,7 @@ var playState = {
       // Don't age him into childhood
       peter.bloodPower = Math.max(18, peter.bloodPower);
       // Speed up the blood. Remove the previous blood timer and add another.
-      bloodTime = Math.max(bloodTime - (Phaser.Timer.SECOND / 20), Phaser.Timer.SECOND * 1);
+      bloodTime = Math.max(bloodTime - (Phaser.Timer.SECOND / 20), Phaser.Timer.SECOND * 0.5);
       game.time.events.remove(bloodLoop);
       bloodLoop = game.time.events.loop(bloodTime, this.bloodDrop, this);
     } else if (vial.key === "oldBlood") {
